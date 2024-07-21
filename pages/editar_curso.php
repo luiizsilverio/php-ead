@@ -1,7 +1,29 @@
-<?php 
+<?php include "lib/conexao.php";
+
+  $id = intval($_GET['id']);
+  $sql = "SELECT * FROM cursos WHERE id = {$id}";
+
+  $result = $mysqli->query($sql);
+
+  if (!$result)
+    $erros[] = "Falha ao buscar no banco de dados: " . $mysqli->error;
+
+  else {
+    $curso = $result->fetch_assoc();
+
+    if ($result->num_rows == 0)
+      $erros[] = "Curso não localizado";
+    else {
+      $titulo     = $curso['titulo'];
+      $desc_curta = $curso['descricao_curta'];
+      $preco      = $curso['preco'];
+      $conteudo   = $curso['conteudo'];
+      $imagem     = $curso['imagem'];  
+    }
+  }
+
 
   if (isset($_POST['enviar'])) {
-    include "lib/conexao.php";
     include "lib/enviarArquivo.php";
 
     $titulo     = $mysqli->real_escape_string($_POST['titulo']);
@@ -23,29 +45,28 @@
     if (empty($conteudo))
       $erros[] = "Informe o conteúdo";
 
-    if (!isset($_FILES) || !isset($_FILES['imagem']) || $_FILES['imagem']['size'] == 0) 
-      $erros[] = "Selecione uma imagem para o curso";
 
     if (count($erros) == 0) {
-      $path = enviarArquivo($_FILES['imagem']['error'], $_FILES['imagem']['size'], $_FILES['imagem']['name'], $_FILES['imagem']['tmp_name']);
+      if (isset($_FILES) && isset($_FILES['imagem']) && $_FILES['imagem']['size'] > 0) {
+        $path = enviarArquivo($_FILES['imagem']['error'], $_FILES['imagem']['size'], $_FILES['imagem']['name'], $_FILES['imagem']['tmp_name']);
+      } else {
+        $path = $curso['imagem'];
+      }
 
-      if ($path !== false) {
-        $sql = "INSERT INTO cursos (titulo, descricao_curta, conteudo, preco, imagem) VALUES (
-                  '$titulo', 
-                  '$desc_curta', 
-                  '$conteudo', 
-                   $preco, 
-                  '$path'
-                )";
+      $sql = "UPDATE cursos set 
+                titulo = '$titulo', 
+                descricao_curta = '$desc_curta', 
+                conteudo = '$conteudo', 
+                preco = $preco, 
+                imagem = '$path'
+              WHERE id = $id";       
 
-        $deu_certo = $mysqli->query($sql);
+      $deu_certo = $mysqli->query($sql);
 
-        if (!$deu_certo)
-          $erros[] = "Falha ao inserir no banco de dados: " . $mysqli->error;
-        else
-          die('<script>location.href="index.php?p=gerenciar_cursos";</script>');
-      } else
-        $erros[] = "Falha ao enviar a imagem";
+      if (!$deu_certo)
+        $erros[] = "Falha ao inserir no banco de dados: " . $mysqli->error;
+      else
+        die('<script>location.href="index.php?p=gerenciar_cursos";</script>');
     }
   }
 ?>
@@ -55,7 +76,7 @@
         <div class="col-lg-6">
           <div class="page-header-title">
             <div class="d-inline">
-              <h4>Cadastrar Curso</h4>
+              <h4>Editar Curso</h4>
               <span>Preencha as informações e clique em Salvar</span>
             </div>
           </div>
@@ -70,7 +91,7 @@
                 </a>
               </li>  
               <li class="breadcrumb-item"><a href="index.php?p=gerenciar_cursos">Gerenciar Cursos</a></li>
-              <li class="breadcrumb-item"><a href="#">Cadastrar Curso</a></li>
+              <li class="breadcrumb-item"><a href="#">Editar Curso</a></li>
             </ul>
           </div>
         </div>
@@ -109,7 +130,7 @@
               </div>
               <div class="form-group col-lg-12">
                   <label for="conteudo">Conteúdo</label>
-                  <textarea class="form-control no-resize" id="conteudo" name="conteudo" rows="7" value="<?= $conteudo; ?>"></textarea>
+                  <textarea class="form-control no-resize" id="conteudo" name="conteudo" rows="7""><?= $conteudo; ?></textarea>
               </div>
               <div class="col-lg-12">
                 <a href="index.php?p=gerenciar_cursos" class="btn btn-primary mr-2" type="button">

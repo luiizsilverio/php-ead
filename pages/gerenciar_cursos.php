@@ -74,7 +74,7 @@
                                   <tr>
                                     <th scope="row"><?= $curso['id']; ?></th>
                                     <td>
-                                      <img src="upload/<?= $curso['imagem']; ?>" height="50" alt="">
+                                      <img src="<?= $curso['imagem']; ?>" height="50" alt="">
                                     </td>
                                     <td><?= $curso['titulo']; ?></td>
                                     <td>R$ <?= number_format($curso['preco'], 2, ',', '.'); ?></td>
