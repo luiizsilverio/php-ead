@@ -1,7 +1,7 @@
 <?php include "lib/conexao.php";
 
   $id = intval($_GET['id']);
-  $sql = "SELECT * FROM cursos WHERE id = {$id}";
+  $sql = "SELECT * FROM usuarios WHERE id = {$id}";
 
   $result = $mysqli->query($sql);
 
@@ -9,74 +9,75 @@
     $erros[] = "Falha ao buscar no banco de dados: " . $mysqli->error;
 
   else {
-    $curso = $result->fetch_assoc();
+    $user = $result->fetch_assoc();
 
     if ($result->num_rows == 0)
-      $erros[] = "Curso não localizado";
+      $erros[] = "Usuário não localizado";
     else {
-      $titulo     = $curso['titulo'];
-      $desc_curta = $curso['descricao_curta'];
-      $preco      = $curso['preco'];
-      $conteudo   = $curso['conteudo'];
-      $imagem     = $curso['imagem'];  
+      $nome     = $user['nome'];
+      $email    = $user['email'];
+      $creditos = $user['creditos'];
+      $senha    = $user['senha'];
+      $admin    = $user['admin'];
     }
   }
 
 
   if (isset($_POST['enviar'])) {
-    include "lib/enviarArquivo.php";
-
-    $titulo     = $mysqli->real_escape_string($_POST['titulo']);
-    $desc_curta = $mysqli->real_escape_string($_POST['descricao_curta']);
-    $preco      = $mysqli->real_escape_string($_POST['preco']);
-    $conteudo   = $mysqli->real_escape_string($_POST['conteudo']);
-
+    $nome     = $mysqli->real_escape_string($_POST['nome']);
+    $email    = $mysqli->real_escape_string($_POST['email']);
+    $creditos = $mysqli->real_escape_string($_POST['creditos']);
+    $senha    = $mysqli->real_escape_string($_POST['senha']);
+    $senha2   = $mysqli->real_escape_string($_POST['senha2']);
+    $admin    = $mysqli->real_escape_string($_POST['admin']);
 
     $erros = [];
-    if (empty($titulo)) 
-      $erros[] = "Informe o título";
+    if (empty($nome)) 
+      $erros[] = "Informe o nome";
 
-    if (empty($desc_curta))
-      $erros[] = "Informe a descrição";
+    if (empty($email))
+      $erros[] = "Informe o e-mail";
 
-    if (empty($preco))
-      $erros[] = "Informe o preço";
+    if (empty($creditos)) $creditos = 0;
 
-    if (empty($conteudo))
-      $erros[] = "Informe o conteúdo";
-
+    if ($senha != $senha2) {
+        $erros[] = "Senhas não conferem";
+    }
 
     if (count($erros) == 0) {
-      if (isset($_FILES) && isset($_FILES['imagem']) && $_FILES['imagem']['size'] > 0) {
-        $path = enviarArquivo($_FILES['imagem']['error'], $_FILES['imagem']['size'], $_FILES['imagem']['name'], $_FILES['imagem']['tmp_name']);
+      
+      if (!empty($senha)) {
+        $hash = password_hash($senha, PASSWORD_DEFAULT);
+        $sql_senha = "senha = '$hash', ";
       } else {
-        $path = $curso['imagem'];
+        $sql_senha = "";
       }
-
-      $sql = "UPDATE cursos set 
-                titulo = '$titulo', 
-                descricao_curta = '$desc_curta', 
-                conteudo = '$conteudo', 
-                preco = $preco, 
-                imagem = '$path'
-              WHERE id = $id";       
+      
+      $sql = "UPDATE usuarios SET 
+                nome = '$nome', 
+                email = '$email', 
+                {$sql_senha}
+                creditos = '$creditos',
+                admin = '$admin'
+              WHERE id = $id";
 
       $deu_certo = $mysqli->query($sql);
-
+      
       if (!$deu_certo)
         $erros[] = "Falha ao inserir no banco de dados: " . $mysqli->error;
       else
-        die('<script>location.href="index.php?p=gerenciar_cursos";</script>');
+        die('<script>location.href="index.php?p=gerenciar_usuarios";</script>');
     }
   }
 ?>
+
   
   <div class="page-header card">
     <div class="row align-items-end">
         <div class="col-lg-6">
           <div class="page-header-title">
             <div class="d-inline">
-              <h4>Editar Curso</h4>
+              <h4>Editar Usuário</h4>
               <span>Preencha as informações e clique em Salvar</span>
             </div>
           </div>
@@ -90,8 +91,8 @@
                   <i class="icofont icofont-home"></i>
                 </a>
               </li>  
-              <li class="breadcrumb-item"><a href="index.php?p=gerenciar_cursos">Gerenciar Cursos</a></li>
-              <li class="breadcrumb-item"><a href="#">Editar Curso</a></li>
+              <li class="breadcrumb-item"><a href="index.php?p=gerenciar_usuarios">Gerenciar Usuários</a></li>
+              <li class="breadcrumb-item"><a href="#">Editar Usuário</a></li>
             </ul>
           </div>
         </div>
@@ -110,30 +111,37 @@
 
         <div class="card">
           <div class="card-header"><h5>Formulário de Cadastro</h5></div>
-          <form action="" method="post" enctype="multipart/form-data">
+          <form action="" method="post">
             <div class="card-block row">
-              <div class="form-group col-lg-5">
-                  <label for="titulo">Título</label>
-                  <input type="text" class="form-control" id="titulo" name="titulo" value="<?= $titulo; ?>" />
+              <div class="form-group col-lg-6">
+                  <label for="nome">Nome</label>
+                  <input type="text" class="form-control" id="nome" name="nome" value="<?= $nome; ?>" />
               </div>
-              <div class="form-group col-lg-7">
-                  <label for="descricao_curta">Descrição</label>
-                  <input type="text" class="form-control" id="descricao_curta" name="descricao_curta" value="<?= $desc_curta; ?>" />
+              <div class="form-group col-lg-6">
+                  <label for="email">E-mail</label>
+                  <input type="email" class="form-control" id="email" name="email" value="<?= $email; ?>" />
               </div>
-              <div class="form-group col-lg-8">
-                  <label for="imagem">Imagem</label>
-                  <input type="file" class="form-control" id="imagem" name="imagem" />
+              <div class="form-group col-lg-6">
+                  <label for="senha">Senha</label>
+                  <input type="password" class="form-control" id="senha" name="senha" />
+              </div>
+              <div class="form-group col-lg-6">
+                  <label for="senha2">Repita a Senha</label>
+                  <input type="password" class="form-control" id="senha2" name="senha2" />
+              </div>
+              <div class="form-group col-lg-6">
+                  <label for="creditos">Crédito</label>
+                  <input type="text" class="form-control" id="creditos" name="creditos" value="<?= $creditos; ?>" />
               </div>
               <div class="form-group col-lg-4">
-                  <label for="preco">Preço</label>
-                  <input type="text" class="form-control" id="preco" name="preco" value="<?= $preco; ?>" />
-              </div>
-              <div class="form-group col-lg-12">
-                  <label for="conteudo">Conteúdo</label>
-                  <textarea class="form-control no-resize" id="conteudo" name="conteudo" rows="7""><?= $conteudo; ?></textarea>
+                  <label for="admin">Tipo</label>
+                  <select name="admin" id="admin" class="form-control">
+                    <option value="0" <?php echo $admin == "1" ? "" : "selected"; ?>>Usuário</option>
+                    <option value="1" <?php echo $admin == "1" ? "selected" : ""; ?>>Administrador</option>
+                  </select>
               </div>
               <div class="col-lg-12">
-                <a href="index.php?p=gerenciar_cursos" class="btn btn-primary mr-2" type="button">
+                <a href="index.php?p=gerenciar_usuarios" class="btn btn-primary mr-2" type="button">
                   <i class="ti-arrow-left"></i>Voltar
                 </a>
                 <button class="btn btn-success" type="submit" name="enviar">

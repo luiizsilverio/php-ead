@@ -7,7 +7,8 @@
     $email    = $mysqli->real_escape_string($_POST['email']);
     $creditos = $mysqli->real_escape_string($_POST['creditos']);
     $senha    = $mysqli->real_escape_string($_POST['senha']);
-    $senha    = $mysqli->real_escape_string($_POST['senha2']);
+    $senha2   = $mysqli->real_escape_string($_POST['senha2']);
+    $admin    = $mysqli->real_escape_string($_POST['admin']);
 
     $erros = [];
     if (empty($nome)) 
@@ -21,17 +22,18 @@
     if (empty($senha))
       $erros[] = "Informe a senha";
 
-    if ($senha != $senha)
+    if ($senha != $senha2)
       $erros[] = "Senhas não conferem";
 
     if (count($erros) == 0) {
       $hash = password_hash($senha, PASSWORD_DEFAULT);
       
-      $sql = "INSERT INTO usuarios (nome, email, senha, creditos) VALUES (
+      $sql = "INSERT INTO usuarios (nome, email, senha, creditos, admin) VALUES (
                 '$nome', 
                 '$email', 
                 '$hash', 
-                '$creditos'
+                '$creditos',
+                '$admin'
               )";
 
       $deu_certo = $mysqli->query($sql);
@@ -104,6 +106,13 @@
               <div class="form-group col-lg-6">
                   <label for="creditos">Crédito</label>
                   <input type="text" class="form-control" id="creditos" name="creditos" value="<?= $creditos; ?>" />
+              </div>
+              <div class="form-group col-lg-4">
+                  <label for="admin">Tipo?</label>
+                  <select name="admin" id="admin" class="form-control">
+                    <option value="0">Usuário</option>
+                    <option value="1">Administrador</option>
+                  </select>
               </div>
               <div class="col-lg-12">
                 <a href="index.php?p=gerenciar_usuarios" class="btn btn-primary mr-2" type="button">
