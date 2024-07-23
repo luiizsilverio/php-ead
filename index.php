@@ -1,10 +1,14 @@
-<?php
+<?php include "lib/protect.php";
 
-$pagina = 'inicial.php';
+  protect(0);
 
-if (isset($_GET['p'])) {
-    $pagina = $_GET['p'] . ".php";
-}
+  $pagina = 'inicial.php';
+
+  if (isset($_GET['p'])) {
+      $pagina = $_GET['p'] . ".php";
+  }
+
+  $id_user = $_SESSION['user_id'];
 
 ?>
 
@@ -87,18 +91,24 @@ if (isset($_GET['p'])) {
                             </li>
                         </ul>
                         <ul class="nav-right">
-                            <li class="header-notification">
-                                <a href="#!">
-                                    <i class="ti-money"></i>
-                                    <span class="badge bg-c-pink"></span> 50,00
-                                </a>
-                            </li>
+                            <?php if (!isset($_SESSION['user_adm']) || !$_SESSION['user_adm']) { ?>
+                              <li class="header-notification">
+                                  <a href="#!">
+                                      <i class="ti-money"></i>
+                                      <span class="badge bg-c-pink"></span> 50,00
+                                  </a>
+                              </li>
+                            <?php } ?>
+
                             <li class="user-profile header-notification">
+                              <?php if (isset($_SESSION['user_name'])) { ?>
                                 <a href="#!">
-                                    <!-- <img src="assets/images/avatar-4.jpg" class="img-radius" alt="User-Profile-Image"> -->
-                                    <span>John Doe</span>
-                                    <i class="ti-angle-down"></i>
+                                  <!-- <img src="assets/images/avatar-4.jpg" class="img-radius" alt="User-Profile-Image"> -->
+                                  <span><?= $_SESSION['user_name']; ?></span>
+                                  <i class="ti-angle-down"></i>
                                 </a>
+                              <?php } ?>  
+
                                 <ul class="show-notification profile-notification">
                                     
                                     <li>
@@ -108,7 +118,7 @@ if (isset($_GET['p'])) {
                                     </li>
                                     
                                     <li>
-                                        <a href="auth-normal-sign-in.html">
+                                        <a href="login.php">
                                             <i class="ti-layout-sidebar-left"></i> Sair
                                         </a>
                                     </li>
@@ -125,7 +135,9 @@ if (isset($_GET['p'])) {
                     <nav class="pcoded-navbar">
                         <div class="sidebar_toggle"><a href="#"><i class="icon-close icons"></i></a></div>
                         
-                        <div class="pcoded-inner-navbar main-menu">                          
+                        <div class="pcoded-inner-navbar main-menu">   
+
+                          <?php if (!isset($_SESSION['user_adm']) || !$_SESSION['user_adm']) { ?>                     
                             <div class="pcoded-navigatio-lavel" data-i18n="nav.category.navigation">Menu</div>
                             <ul class="pcoded-item pcoded-left-item">
                                 <li class="">
@@ -157,7 +169,8 @@ if (isset($_GET['p'])) {
                                     </a>
                                 </li>
                             </ul>
-                       
+
+                          <?php } else { ?>                       
                             
                             <div class="pcoded-navigatio-lavel" data-i18n="nav.category.navigation">Menu</div>
                             <ul class="pcoded-item pcoded-left-item">
@@ -197,6 +210,8 @@ if (isset($_GET['p'])) {
                                     </a>
                                 </li>
                             </ul>
+                          <?php } ?>                       
+
                         </div>
                     </nav>
 
@@ -219,57 +234,8 @@ if (isset($_GET['p'])) {
             </div>
         </div>
     </div>
-<div class="fixed-button">
-	<a href="https://codedthemes.com/item/guru-able-admin-template/" target="_blank" class="btn btn-md btn-primary">
-	  <i class="fa fa-shopping-cart" aria-hidden="true"></i> Upgrade To Pro
-	</a>
-</div>
 
-    <!-- Warning Section Starts -->
-    <!-- Older IE warning message -->
-<!--[if lt IE 9]>
-<div class="ie-warning">
-    <h1>Warning!!</h1>
-    <p>You are using an outdated version of Internet Explorer, please upgrade <br/>to any of the following web browsers
-        to access this website.</p>
-    <div class="iew-container">
-        <ul class="iew-download">
-            <li>
-                <a href="http://www.google.com/chrome/">
-                    <img src="assets/images/browser/chrome.png" alt="Chrome">
-                    <div>Chrome</div>
-                </a>
-            </li>
-            <li>
-                <a href="https://www.mozilla.org/en-US/firefox/new/">
-                    <img src="assets/images/browser/firefox.png" alt="Firefox">
-                    <div>Firefox</div>
-                </a>
-            </li>
-            <li>
-                <a href="http://www.opera.com">
-                    <img src="assets/images/browser/opera.png" alt="Opera">
-                    <div>Opera</div>
-                </a>
-            </li>
-            <li>
-                <a href="https://www.apple.com/safari/">
-                    <img src="assets/images/browser/safari.png" alt="Safari">
-                    <div>Safari</div>
-                </a>
-            </li>
-            <li>
-                <a href="http://windows.microsoft.com/en-us/internet-explorer/download-ie">
-                    <img src="assets/images/browser/ie.png" alt="">
-                    <div>IE (9 & above)</div>
-                </a>
-            </li>
-        </ul>
-    </div>
-    <p>Sorry for the inconvenience!</p>
-</div>
-<![endif]-->
-<!-- Warning Section Ends -->
+
 <!-- Required Jquery -->
 <script type="text/javascript" src="assets/js/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="assets/js/jquery-ui/jquery-ui.min.js"></script>

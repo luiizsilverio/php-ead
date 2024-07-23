@@ -1,3 +1,43 @@
+<?php
+
+  if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    include "lib/conexao.php";
+
+    $email = $_POST['email'];
+    $senha = $_POST['senha'];
+    $erros = [];
+  
+    if (empty($email))
+      $erros[] = "Informe o e-mail";
+
+    elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) 
+      $erros[] = 'E-mail inválido';
+    
+    if (empty($senha))
+      $erros[] = "Informe a senha";    
+
+    if (count($erros) == 0) {
+      $email = $mysqli->real_escape_string($_POST['email']);
+      $senha = $mysqli->real_escape_string($_POST['senha']);
+
+      $sql = $mysqli->query("SELECT * FROM usuarios WHERE email = '$email'") or die($mysqli->error);
+      
+      $user = $sql->fetch_assoc();
+
+      if (password_verify($senha, $user['senha'])) {
+        if (!isset($_SESSION)) 
+          session_start();
+        $_SESSION['user_id']    = $user['id'];
+        $_SESSION['user_name']  = $user['nome'];
+        $_SESSION['user_adm']   = $user['admin'];
+        header("Location: index.php");        
+      } else {
+        $erros[] = "Senha incorreta";
+      }
+    }
+  }
+?>
+
 <!DOCTYPE html>
 <html lang="pt">
 
@@ -57,11 +97,18 @@
                 <div class="col-sm-12">
                     <!-- Authentication card start -->
                     <div class="login-card card-block auth-body mr-auto ml-auto">
-                        <form class="md-float-material">
+                        <form method="POST" class="md-float-material">
                             <div class="text-center">
                                 <img src="assets/images/logo_preto.png" height="70" alt="logo.png">
                             </div>
+
                             <div class="auth-box">
+                              <?php if (isset($erros) && count($erros) > 0) { ?>
+                                <div class="alert alert-danger">
+                                  <?= implode('<br>', $erros); ?>
+                                </div>
+                              <?php } ?>
+                            
                                 <div class="row m-b-20">
                                     <div class="col-md-12">
                                         <h3 class="text-left txt-primary">Entrar</h3>
@@ -69,7 +116,7 @@
                                 </div>
                                 <hr/>
                                 <div class="input-group">
-                                    <input type="email" name="email" class="form-control" placeholder="Seu e-mail">
+                                    <input type="email" name="email" class="form-control" placeholder="Seu e-mail" value="<?= $email; ?>">
                                     <span class="md-line"></span>
                                 </div>
                                 <div class="input-group">
@@ -85,7 +132,10 @@
                                 </div>
                                 <div class="row m-t-30">
                                     <div class="col-md-12">
-                                        <button type="button" class="btn btn-primary btn-md btn-block waves-effect text-center m-b-20">Acessar</button>
+                                        <button type="submit" name="acessar" 
+                                          class="btn btn-primary btn-md btn-block waves-effect text-center m-b-20">
+                                          Acessar
+                                        </button>
                                     </div>
                                 </div>
 
@@ -101,50 +151,7 @@
         </div>
         <!-- end of container-fluid -->
     </section>
-    <!-- Warning Section Starts -->
-    <!-- Older IE warning message -->
-    <!--[if lt IE 9]>
-<div class="ie-warning">
-    <h1>Warning!!</h1>
-    <p>You are using an outdated version of Internet Explorer, please upgrade <br/>to any of the following web browsers to access this website.</p>
-    <div class="iew-container">
-        <ul class="iew-download">
-            <li>
-                <a href="http://www.google.com/chrome/">
-                    <img src="assets/images/browser/chrome.png" alt="Chrome">
-                    <div>Chrome</div>
-                </a>
-            </li>
-            <li>
-                <a href="https://www.mozilla.org/en-US/firefox/new/">
-                    <img src="assets/images/browser/firefox.png" alt="Firefox">
-                    <div>Firefox</div>
-                </a>
-            </li>
-            <li>
-                <a href="http://www.opera.com">
-                    <img src="assets/images/browser/opera.png" alt="Opera">
-                    <div>Opera</div>
-                </a>
-            </li>
-            <li>
-                <a href="https://www.apple.com/safari/">
-                    <img src="assets/images/browser/safari.png" alt="Safari">
-                    <div>Safari</div>
-                </a>
-            </li>
-            <li>
-                <a href="http://windows.microsoft.com/en-us/internet-explorer/download-ie">
-                    <img src="assets/images/browser/ie.png" alt="">
-                    <div>IE (9 & above)</div>
-                </a>
-            </li>
-        </ul>
-    </div>
-    <p>Sorry for the inconvenience!</p>
-</div>
-<![endif]-->
-    <!-- Warning Section Ends -->
+   
     <!-- Required Jquery -->
     <script type="text/javascript" src="assets/js/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="assets/js/jquery-ui/jquery-ui.min.js"></script>

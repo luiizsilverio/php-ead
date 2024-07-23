@@ -9,7 +9,6 @@
     $preco      = $mysqli->real_escape_string($_POST['preco']);
     $conteudo   = $mysqli->real_escape_string($_POST['conteudo']);
 
-
     $erros = [];
     if (empty($titulo)) 
       $erros[] = "Informe o título";
