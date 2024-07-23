@@ -1,5 +1,9 @@
-<?php include "lib/conexao.php"; 
+<?php 
+  include "lib/conexao.php"; 
+  include "lib/protect.php";
 
+  protect(1); // somente Admin (1) pode acessar essa página
+  
   $sql = "SELECT R.*, C.titulo, U.nome FROM relatorio AS R 
           JOIN cursos AS C ON C.id = R.id_curso
           JOIN usuarios AS U on U.id = R.id_usuario

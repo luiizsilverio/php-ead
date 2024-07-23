@@ -1,5 +1,10 @@
-<?php include "lib/conexao.php"; 
+<?php 
 
+  include "lib/conexao.php"; 
+  include "lib/protect.php";
+
+  protect(1); // somente Admin (1) pode acessar essa página
+  
   $sql = "SELECT * FROM usuarios";
   $result = $mysqli->query($sql) or die($mysqli->error);
   $qtd_users = $result->num_rows;

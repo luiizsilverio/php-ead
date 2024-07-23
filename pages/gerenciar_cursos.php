@@ -1,10 +1,13 @@
-<?php include "lib/conexao.php"; 
+<?php 
 
+  include "lib/conexao.php"; 
+  include "lib/protect.php";
+
+  protect(1); // somente Admin (1) pode acessar essa página
+  
   $sql_cursos = "SELECT * FROM cursos";
   $result = $mysqli->query($sql_cursos) or die($mysqli->error);
   $qtd_cursos = $result->num_rows;
-
-
 
 ?>
 

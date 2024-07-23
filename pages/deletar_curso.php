@@ -1,23 +1,28 @@
-<?php include "lib/conexao.php";
+<?php 
 
-$id = intval($_GET['id']);
+  include "lib/conexao.php";
+  include "lib/protect.php";
 
-$sql = "SELECT imagem FROM cursos WHERE id = $id";
+  protect(1); // somente Admin (1) pode acessar essa página
+  
+  $id = intval($_GET['id']);
 
-$result = $mysqli->query($sql) or die($mysqli->error);
+  $sql = "SELECT imagem FROM cursos WHERE id = $id";
 
-if (!$result)
-    $erros[] = "Falha ao buscar no banco de dados: " . $mysqli->error;
+  $result = $mysqli->query($sql) or die($mysqli->error);
 
-else {
-  $curso = $result->fetch_assoc();
+  if (!$result)
+      $erros[] = "Falha ao buscar no banco de dados: " . $mysqli->error;
 
-  if ($result->num_rows == 0)
-    die("Curso não localizado");
   else {
-    unlink($curso['imagem']);    
-    $mysqli->query("DELETE FROM cursos WHERE id = $id") or die($mysqli->error);
-  }
+    $curso = $result->fetch_assoc();
+
+    if ($result->num_rows == 0)
+      die("Curso não localizado");
+    else {
+      unlink($curso['imagem']);    
+      $mysqli->query("DELETE FROM cursos WHERE id = $id") or die($mysqli->error);
+    }
 
   die('<script>location.href="index.php?p=gerenciar_cursos";</script>');
 

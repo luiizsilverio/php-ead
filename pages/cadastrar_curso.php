@@ -3,6 +3,9 @@
   if (isset($_POST['enviar'])) {
     include "lib/conexao.php";
     include "lib/enviarArquivo.php";
+    include "lib/protect.php";
+
+    protect(1); // somente Admin (1) pode acessar essa página
 
     $titulo     = $mysqli->real_escape_string($_POST['titulo']);
     $desc_curta = $mysqli->real_escape_string($_POST['descricao_curta']);

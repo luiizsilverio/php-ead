@@ -1,6 +1,9 @@
-<?php include "lib/protect.php";
+<?php 
 
-  protect(0);
+  include "lib/protect.php";
+  include "lib/conexao.php";
+
+  protect(0); // Usuário normal (0) pode acessar essa página
 
   $pagina = 'inicial.php';
 
@@ -9,6 +12,9 @@
   }
 
   $id_user = $_SESSION['user_id'];
+  $sql = "SELECT * FROM usuarios WHERE id = $id_user";
+  $result = $mysqli->query($sql) or die($mysqli->error);
+  $usuario = $result->fetch_assoc();  
 
 ?>
 
@@ -55,6 +61,7 @@
             </div>
         </div>
     </div>
+    
     <!-- Pre-loader end -->
     <div id="pcoded" class="pcoded">
         <div class="pcoded-overlay-box"></div>
@@ -95,7 +102,7 @@
                               <li class="header-notification">
                                   <a href="#!">
                                       <i class="ti-money"></i>
-                                      <span class="badge bg-c-pink"></span> 50,00
+                                      <span class="badge bg-c-pink"></span><?php echo number_format($usuario['creditos'], 2, ',', '.'); ?>
                                   </a>
                               </li>
                             <?php } ?>
@@ -112,13 +119,13 @@
                                 <ul class="show-notification profile-notification">
                                     
                                     <li>
-                                        <a href="#">
+                                        <a href="index.php?p=perfil">
                                             <i class="ti-user"></i> Perfil
                                         </a>
                                     </li>
                                     
                                     <li>
-                                        <a href="login.php">
+                                        <a href="logout.php">
                                             <i class="ti-layout-sidebar-left"></i> Sair
                                         </a>
                                     </li>

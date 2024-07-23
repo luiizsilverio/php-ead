@@ -1,5 +1,10 @@
-<?php include "lib/conexao.php";
+<?php 
 
+  include "lib/conexao.php";
+  include "lib/protect.php";
+
+  protect(1); // somente Admin (1) pode acessar essa página
+  
   $id = intval($_GET['id']);
   $sql = "SELECT * FROM cursos WHERE id = {$id}";
 

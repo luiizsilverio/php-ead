@@ -2,7 +2,10 @@
 
   if (isset($_POST['enviar'])) {
     include "lib/conexao.php";
+    include "lib/protect.php";
 
+    protect(1); // somente Admin (1) pode acessar essa página
+    
     $nome     = $mysqli->real_escape_string($_POST['nome']);
     $email    = $mysqli->real_escape_string($_POST['email']);
     $creditos = $mysqli->real_escape_string($_POST['creditos']);
