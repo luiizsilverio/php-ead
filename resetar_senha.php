@@ -1,15 +1,39 @@
-<!DOCTYPE html>
-<html lang="pt">
+<?php
 
+  if (isset($_POST['email'])) {
+    include "lib/conexao.php";
+    include "lib/generateRandomString.php";
+    include "lib/enviarEmail.php";
+    
+    $msg = false;
+    $email = $mysqli->real_escape_string($_POST['email']);
+    $sql = $mysqli->query("SELECT id, nome FROM usuarios WHERE email = '$email'") or die("Falha ao acessar o BD");
+    $result = $sql->fetch_assoc();
+
+    if ($result['id'] > 0) {
+      $nova_senha = generateRandomString(6);
+      $hash = password_hash($nova_senha, PASSWORD_DEFAULT);
+      $id = $result['id'];
+
+      $mysqli->query("UPDATE usuarios SET senha = '$hash' WHERE id = $id") or die("Falha ao gravar senha");
+
+      enviarEmail($email, "sua nova senha na plataforma de EAD", 
+        "<h1>Olá ". $result['nome'] . "</h1>
+         <p>Uma nova senha foi definida para a sua conta.</p>
+         <p><b>Nova senha:</b> $nova_senha</p>");
+
+      $msg = "Uma nova senha foi enviada para esse e-mail.";
+    } else {
+      $msg = "Uma nova senha foi enviada para esse e-mail.";
+    }
+  }
+
+?>
+
+<!DOCTYPE html>
+<html lang="br">
 <head>
     <title>My-EAD | Resetar sua Senha</title>
-    <!-- HTML5 Shim and Respond.js IE9 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-      <![endif]-->
-    <!-- Meta -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -57,17 +81,24 @@
                 <div class="col-sm-12">
                     <!-- Authentication card start -->
                     <div class="login-card card-block auth-body mr-auto ml-auto">
-                        <form class="md-float-material">
+                        <form method="post" class="md-float-material">
                             <div class="text-center">
                                 <img src="assets/images/logo_preto.png" height="70" alt="logo.png">
                             </div>
                             <div class="auth-box">
                                 <div class="row m-b-20">
                                     <div class="col-md-12">
-                                        <h3 class="text-left txt-primary">Entrar</h3>
+                                        <h3 class="text-left txt-primary">Esqueceu sua Senha?</h3>
                                     </div>
                                 </div>
                                 <hr/>
+
+                                <?php if ($msg != false) { ?>
+                                  <div class="alert alert-danger">
+                                    <?= $msg; ?>
+                                  </div>
+                                <?php } ?>
+
                                 <p class="text-dark">Digite seu e-mail para enviarmos sua senha</p>
                                 <div class="input-group">
                                     <input type="email" name="email" class="form-control" placeholder="Seu e-mail">
@@ -82,7 +113,7 @@
                                 </div>
                                 <div class="row m-t-30">
                                     <div class="col-md-12">
-                                        <button type="button" class="btn btn-primary btn-md btn-block waves-effect text-center m-b-20">
+                                        <button type="submit" class="btn btn-primary btn-md btn-block waves-effect text-center m-b-20">
                                             Enviar minha senha
                                         </button>
                                     </div>

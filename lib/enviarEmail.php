@@ -14,7 +14,7 @@ function enviarEmail($destinatario, $assunto, $mensagemHTML)
     $mail->Port = 587;
     $mail->SMTPAuth = true;
     $mail->Username = 'teste@zerobugs.com.br';
-    $mail->Password = 'mc0BfI9*mm<';
+    $mail->Password = 'xxx';
 
     $mail->SMTPSecure = false;
     $mail->isHTML(true);

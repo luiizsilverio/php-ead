@@ -1,4 +1,8 @@
-<?php include "lib/conexao.php";
+<?php 
+
+  include "lib/conexao.php";
+  
+  protect(0); // Usuário normal (0) pode acessar essa página
 
   if (!isset($_SESSION)) session_start();
 
@@ -17,32 +21,31 @@
     $id_user = $_SESSION['user_id'];
     
     $sql = "SELECT creditos FROM usuarios WHERE id = $id_user";      
-    $result = $mysqli->query($sql) or die($mysqli->error);
-    $user = $result->fetch_assoc();
+    $query = $mysqli->query($sql) or die($mysqli->error);
+    $user = $query->fetch_assoc();
     $credito = intval($user['creditos']);
 
     $sql = "SELECT preco FROM cursos WHERE id = $id_curso";
-    $result = $mysqli->query($sql) or die($mysqli->error);
-    $curso = $result->fetch_assoc();
+    $query = $mysqli->query($sql) or die($mysqli->error);
+    $curso = $query->fetch_assoc();
     $preco = $curso['preco'];
     $erro = false;
 
     if ($preco > $credito) {
       $erro = "Você não tem crédito suficiente para adquirir este curso";
     } else {
-      $sql = "INSERT INTO relatorio (id_usuario, id_curso, valor, data_compra) VALUES (
+      $sql = "INSERT INTO relatorio (id_usuario, id_curso, valor, dt_compra) VALUES (
                 '$id_user',
                 '$id_curso',
-                '$preco'
+                '$preco',
+                NOW()
               )";
 
       $mysqli->query($sql) or die($mysqli->error);
 
       $novo_credito = ($credito - $preco);
       $sql = "UPDATE usuarios SET creditos = {$novo_credito} WHERE id = $id_user";
-      $result = $mysqli->query($sql) or die($mysqli->error);
-
-
+      $mysqli->query($sql) or die($mysqli->error);
       die("<script>location.href='index.php?p=meus_cursos';</script>");
     }      
   }
