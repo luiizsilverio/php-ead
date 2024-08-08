@@ -1,5 +1,3 @@
-https://codedthemes.com/item/guru-able-admin-template
-
 <h1 align="center"> PHP-EAD 🧑🏽‍💻</h1>
 
 ### Projeto desenvolvido em PHP durante curso [PHP do Zero - Criando sistemas com PHP e MySQL na prática](https://www.udemy.com/course/php-essencial),  com o professor <i>João Oliveira</i>.
